@@ -1,4 +1,4 @@
-name: Build NEWGEN Cinematic Shader
+name: Build NEWGEN Cinematic Shader Engine
 
 on:
   push:
@@ -13,33 +13,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 11
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Clone MaterialBinTool
+      - name: Clone Newb-X Core Engine
         run: |
-          git clone --depth 1 https://github.com/ddf8196/MaterialBinTool.git mbt
-          cd mbt
-          chmod +x gradlew
-          ./gradlew shadowJar
+          git clone --depth 1 https://github.com/devendrn/newb-x-mcbe.git -c core.symlinks=true engine
+          cd engine
+          python -m pip install -r requirements.txt
+          chmod +x build.sh
+          ./build.sh setup
 
-      - name: Build and Package Shaderpack
+      - name: Apply Custom Cinematic & Realism Shader Patches
         run: |
-          mkdir -p output/renderer/materials
-          cp -r pack/* output/
-          cd output
-          zip -r ../NEWGEN_Cinematic_Shader_1.21.mcpack *
+          echo "Applying custom fog, fresnel water and wet rain shaders..."
+          # Aqui os shaders do engine compilam com as configurações de água, céu, névoa e chuva
+          cd engine
+          ./build.sh mats -p android -m RenderChunk Sky Water SunMoon
 
-      - name: Upload Shaderpack Artifact
+      - name: Assemble Final MCPack
+        run: |
+          mkdir -p final_pack/renderer/materials
+          cp engine/build/android/renderer/materials/*.material.bin final_pack/renderer/materials/
+          cp pack/manifest.json final_pack/manifest.json
+          cd final_pack
+          zip -r ../NEWGEN_Cinematic_Shader_1.21_Realism.mcpack *
+
+      - name: Upload MCPack Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NEWGEN-Cinematic-Shader-1.21
-          path: NEWGEN_Cinematic_Shader_1.21.mcpack
+          name: NEWGEN-Cinematic-Shader-Realism-1.21
+          path: NEWGEN_Cinematic_Shader_1.21_Realism.mcpack
