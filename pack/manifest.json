@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "§bNEWGEN §6Cinematic Shader",
+    "description": "§7Shader cinematográfico, realista e ultra-leve otimizado para PowerVR / Mobile.",
+    "uuid": "4c8f2b70-9831-4a1e-8e3d-71b569e9a4f2",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "8b9e14a2-1d70-4f59-b1d6-8e50b73c2a11",
+      "version": [1, 0, 0]
+    }
+  ]
+}

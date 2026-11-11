@@ -1,0 +1,45 @@
+name: Build NEWGEN Cinematic Shader
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java & Python
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Clone MaterialBinTool
+        run: |
+          git clone --depth 1 https://github.com/ddf8196/MaterialBinTool.git mbt
+          cd mbt
+          chmod +x gradlew
+          ./gradlew shadowJar
+
+      - name: Build and Package Shaderpack
+        run: |
+          mkdir -p output/renderer/materials
+          cp -r pack/* output/
+          cd output
+          zip -r ../NEWGEN_Cinematic_Shader_1.21.mcpack *
+
+      - name: Upload Shaderpack Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEWGEN-Cinematic-Shader-1.21
+          path: NEWGEN_Cinematic_Shader_1.21.mcpack
